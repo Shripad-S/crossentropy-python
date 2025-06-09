@@ -48,12 +48,12 @@ class ScaledGaussian:
             mean = (T_inv @ mean.T).T
             cov = T_inv @ cov @ T_inv.T
 
-        self.mean = mean
-        self.cov = cov
-        self.mean_T = mean_T
-        self.cov_T = cov_T
-        self.T_inv = T_inv
-        self.T = T
+        self.mean = np.asarray(mean, dtype=float)
+        self.cov = np.asarray(cov, dtype=float)
+        self.mean_T = np.asarray(mean_T, dtype=float)
+        self.cov_T = np.asarray(cov_T, dtype=float)
+        self.T_inv = np.asarray(T_inv, dtype=float)
+        self.T = np.asarray(T, dtype=float)
 
     def sample(self, n: int) -> np.ndarray:
         """Generate n samples from the distribution.
