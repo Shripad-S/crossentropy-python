@@ -9,6 +9,15 @@ importance-sampler q so that P[s(X) < threshold] can be efficiently estimated.
 """
 
 import numpy as np
+from multiprocessing import Pool
+
+cpu_cores = 16
+# ——————————————————————————————————————————— Parallel Scoring ——————————————————————————————————————————— #
+def parallel_score(samples, score_fn, num_workers=cpu_cores):
+    """Evaluates scores in parallel using multiprocessing."""
+    with Pool(processes=num_workers) as pool:
+        scores = pool.map(score_fn, samples)
+    return np.array(scores)
 
 
 def cross_entropy(
@@ -46,13 +55,11 @@ def cross_entropy(
         """Draws samples, computes scores, and selects elite subset."""
         samples = dist.sample(num)
         n = samples.shape[0]
-        scores = np.zeros(n, dtype=float)
 
         if parallel:
-            # Parallelism not implemented; use serial loop
-            for i in range(n):
-                scores[i] = score_fn(samples[i])
+            scores = parallel_score(samples, score_fn)
         else:
+            scores = np.zeros(n, dtype=float)
             for i in range(n):
                 scores[i] = score_fn(samples[i])
 

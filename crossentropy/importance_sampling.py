@@ -9,6 +9,18 @@ Estimate P[s(X) < threshold] via importance sampling:
 """
 
 import numpy as np
+from multiprocessing import Pool
+
+# ——— User-editable ——— #
+cpu_cores = 16
+
+# ————————————————————————————— Parallel Score ————————————————————————————— #
+def parallel_score(samples, score_fn, num_workers=cpu_cores):
+    """Evaluate score_fn on each sample in parallel."""
+    with Pool(processes=num_workers) as pool:
+        scores = pool.map(score_fn, samples)
+    return np.array(scores)
+
 
 
 def compute_confidence_interval(mean, variance, n, z=1.96):
@@ -77,9 +89,12 @@ def importance_sampling(
     samples = q.sample(num)
     n = samples.shape[0]
 
-    scores = np.zeros(n, dtype=float)
-    for i in range(n):
-        scores[i] = score_fn(samples[i])
+    if parallel:
+        scores = parallel_score(samples, score_fn)
+    else:
+        scores = np.zeros(n, dtype=float)
+        for i in range(n):
+            scores[i] = score_fn(samples[i])
 
     hit_mask = scores < threshold
     hits = samples[hit_mask]
