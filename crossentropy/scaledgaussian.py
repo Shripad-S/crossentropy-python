@@ -40,10 +40,11 @@ class ScaledGaussian:
                 T_inv[i, i] = np.sqrt(cov[i, i])
                 T[i, i] = 1.0 / T_inv[i, i]
 
-        mean_T = (T @ mean.T).T
-        cov_T = T @ cov @ T.T
-        
-        # else:
+            mean_T = (T @ mean.T).T
+            cov_T = T @ cov @ T.T
+        else:
+            mean_T = (T @ mean.T).T
+            cov_T = T @ cov @ T.T
             # mean_T = mean
             # cov_T = cov
             # mean = (T_inv @ mean.T).T
@@ -106,10 +107,17 @@ class ScaledGaussian:
         Returns:
             ScaledGaussian: Fitted distribution.
         """
+        # 1) transform samples into T-space
         transformed = (self.T @ samples.T).T
-        weight_sum = np.sum(weights)
-        weighted_mean = np.sum(transformed * weights[:, None], axis=0) / weight_sum
-        centered = transformed - weighted_mean
-        weighted_cov = (centered.T @ (centered * weights[:, None])) / weight_sum
 
-        return ScaledGaussian(weighted_mean, weighted_cov, self.T_inv, self.T)
+        # 2) Compute weighted mean and cov in T-space
+        weight_sum    = np.sum(weights)
+        weighted_mean = np.sum(transformed * weights[:, None], axis=0) / weight_sum
+        centered      = transformed - weighted_mean
+        weighted_cov  = (centered.T @ (centered * weights[:, None])) / weight_sum
+
+        # 3) **convert back** to original space before calling __init__**
+        orig_mean = (self.T_inv @ weighted_mean.T).T
+        orig_cov  = self.T_inv @ weighted_cov @ self.T_inv.T
+
+        return ScaledGaussian(orig_mean, orig_cov, self.T_inv, self.T)
