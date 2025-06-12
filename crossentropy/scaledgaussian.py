@@ -40,13 +40,14 @@ class ScaledGaussian:
                 T_inv[i, i] = np.sqrt(cov[i, i])
                 T[i, i] = 1.0 / T_inv[i, i]
 
-            mean_T = (T @ mean.T).T
-            cov_T = T @ cov @ T.T
-        else:
-            mean_T = mean
-            cov_T = cov
-            mean = (T_inv @ mean.T).T
-            cov = T_inv @ cov @ T_inv.T
+        mean_T = (T @ mean.T).T
+        cov_T = T @ cov @ T.T
+        
+        # else:
+            # mean_T = mean
+            # cov_T = cov
+            # mean = (T_inv @ mean.T).T
+            # cov = T_inv @ cov @ T_inv.T
 
         self.mean = np.asarray(mean, dtype=float)
         self.cov = np.asarray(cov, dtype=float)
