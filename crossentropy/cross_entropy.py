@@ -11,7 +11,7 @@ importance-sampler q so that P[s(X) < threshold] can be efficiently estimated.
 import numpy as np
 from multiprocessing import Pool
 
-cpu_cores = 16
+cpu_cores = 24
 # ——————————————————————————————————————————— Parallel Scoring ——————————————————————————————————————————— #
 def parallel_score(samples, score_fn, num_workers=cpu_cores):
     """Evaluates scores in parallel using multiprocessing."""

@@ -12,7 +12,7 @@ import numpy as np
 from multiprocessing import Pool
 
 # ——— User-editable ——— #
-cpu_cores = 16
+cpu_cores = 24
 
 # ————————————————————————————— Parallel Score ————————————————————————————— #
 def parallel_score(samples, score_fn, num_workers=cpu_cores):
