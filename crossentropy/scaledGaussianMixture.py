@@ -41,6 +41,10 @@ class GaussianMixture:
             if s <= 0:
                 raise ValueError("Mixing weights sum must be positive.")
             self.weights = self.weights / s  # normalize defensively
+    
+    @property
+    def mixing(self) -> np.ndarray:
+        return self.weights
 
     # ---------- Public API ----------
 
