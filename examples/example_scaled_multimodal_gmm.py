@@ -51,7 +51,13 @@ def main():
 
     # Update function: weighted MLE of GMM (using your ScaledGaussian-based mixture)
     def update_fn(samples: np.ndarray, weights: np.ndarray) -> GaussianMixture:
-        return GaussianMixture.weighted_mle(samples, weights, num_components)
+        return GaussianMixture.weighted_mle(
+            samples, 
+            weights, 
+            num_components=num_components,
+            mean0=p.mean,
+            cov0=p.cov
+    )
 
     # Run Cross‐Entropy
     q_dist, n_iters, completed = cross_entropy(
