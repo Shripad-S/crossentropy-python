@@ -9,6 +9,23 @@ to standardize the covariance matrix for better stability.
 import numpy as np
 from scipy.stats import multivariate_normal
 
+def clip_eigenvalues(mat, floor=None):
+    """Eigenvalue clipping for symmetric (cov/corr) matrices.
+
+    Floors eigenvalues to at least sqrt(machine epsilon) by default and
+    reconstructs the matrix using a symmetric eigendecomposition—exactly
+    like the C++ snippet with SelfAdjointEigenSolver:
+        mat = evecs * max(evals, floor).asDiagonal() * evecs^T
+    """
+    import numpy as _np
+    A = _np.asarray(mat, dtype=float)
+    A = 0.5 * (A + A.T)                        # enforce symmetry
+    if floor is None:
+        floor = _np.sqrt(_np.finfo(A.dtype).eps)
+    evals, evecs = _np.linalg.eigh(A)          # symmetric eigensolver
+    evals = _np.maximum(evals, floor)          # <-- the "clip"
+    A2 = (evecs * evals) @ evecs.T             # reconstruct
+    return 0.5 * (A2 + A2.T)                   # re-symmetrize
 
 class ScaledGaussian:
     """Multivariate Gaussian distribution with a linear scaling transformation.
@@ -42,9 +59,11 @@ class ScaledGaussian:
 
             mean_T = (T @ mean.T).T
             cov_T = T @ cov @ T.T
+            cov_T = clip_eigenvalues(cov_T)  # eigenvalue clipping
         else:
             mean_T = (T @ mean.T).T
             cov_T = T @ cov @ T.T
+            cov_T = clip_eigenvalues(cov_T)  # eigenvalue clipping
             # mean_T = mean
             # cov_T = cov
             # mean = (T_inv @ mean.T).T
@@ -115,6 +134,7 @@ class ScaledGaussian:
         weighted_mean = np.sum(transformed * weights[:, None], axis=0) / weight_sum
         centered      = transformed - weighted_mean
         weighted_cov  = (centered.T @ (centered * weights[:, None])) / weight_sum
+        # weighted_cov  = clip_eigenvalues(weighted_cov)  # eigenvalue clipping
 
         # 3) **convert back** to original space before calling __init__**
         orig_mean = (self.T_inv @ weighted_mean.T).T

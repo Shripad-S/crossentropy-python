@@ -65,6 +65,7 @@ def cross_entropy(
 
         sorted_scores = np.sort(scores)
         cutoff = sorted_scores[int(np.ceil(quantile * n)) - 1]
+        # print(f"cutoff = {cutoff}")
 
         if cutoff > threshold:
             elite_mask = scores < cutoff
