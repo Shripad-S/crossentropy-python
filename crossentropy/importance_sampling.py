@@ -99,6 +99,19 @@ def importance_sampling(
     hit_mask = scores < threshold
     hits = samples[hit_mask]
 
+    # --- Hit count + print first hit's state --- #
+    # hit_count = int(np.count_nonzero(hit_mask))
+    # print(f"[IS] hits: {hit_count}/{n} (threshold={threshold})")
+    # if hit_count > 0:
+    #     first_idx = int(np.argmax(hit_mask))
+    #     first_hit = samples[first_idx]
+    #     sat1 = first_hit[:6]
+    #     sat2 = first_hit[6:12]
+    #     np.set_printoptions(precision=10, suppress=False)
+    #     print("[IS] First hit sample (EQ @ t0):")
+    #     print(" sat1:", sat1)
+    #     print(" sat2:", sat2)
+    # ------------------------------------------- #
     if hits.shape[0] > 0:
         hit_weights = p.pdf(hits) / q.pdf(hits)
     else:
